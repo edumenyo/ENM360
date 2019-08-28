@@ -2,7 +2,7 @@
 
 ### Course Description
 
-From recognizing voice, text or images to designing more efficient airplane wings and discovering new drugs, machine learning is introducing a transformative set of tools in data analysis with increasing impact across engineering, sciences, and commercial applications. In this course, you wil learn about principles and algorithms for extracting patterns from data and and making effective automated predictions. We will cover concepts such as regression, classification, density estimation, feature extraction, sampling, and probabilistic modeling, and provide a formal understanding of how, why, and when these methods work in the context of analyzing physical, biological, and engineering systems. 
+From recognizing voice, text or images to designing more efficient airplane wings and discovering new drugs, machine learning is introducing a transformative set of tools in data analysis with increasing impact across engineering, sciences, and commercial applications. In this course, you will learn about principles and algorithms for extracting patterns from data and and making effective automated predictions. We will cover concepts such as regression, classification, density estimation, feature extraction, sampling, and probabilistic modeling, and provide a formal understanding of how, why, and when these methods work in the context of analyzing physical, biological, and engineering systems. 
 
 
 ### Course prerequisites
@@ -31,10 +31,12 @@ Students will leave this course with experience in:
 
 ### Teaching Assistants
 
-Please consult the TA regarding issues related to setting up your computing enviroment, code design, implementation, and execution.
+Please consult the TA regarding issues related to course material, homework problems, setting up your computing enviroment, code design, implementation, and execution.
 
-TA: Kuan-Cheng Chiu,  Office Hours: Mondays 3:30-4:30pm and Wedensdays 10:00-11:00am, Room 401B, 3401 Walnut Street (4th-floor, Wing B), Email: <chiuk@seas.upenn.edu>
+TA: George Kissas,  Office Hours: TBA, Email: <gkissas@seas.upenn.edu>
+
 
 ### Note
 
 This syllabus is a work in progress. The lesson plan is subject to change depending on the progress and success of the students in the class. Any changes will be notified to students.
+
