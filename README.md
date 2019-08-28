@@ -13,7 +13,7 @@ From recognizing voice, text or images to designing more efficient airplane wing
 ### Software used in class
 
 - A Python enviroment set up for scientific computing (I recommend the [Anaconda distribution](https://anaconda.org/anaconda/python))
-- Machine learning libraries: [Tensorflow](https://www.tensorflow.org/), [PyTorch](http://pytorch.org/)
+- Machine learning libraries: [PyTorch](http://pytorch.org/)
 
 ### Course Learning Objectives
 
