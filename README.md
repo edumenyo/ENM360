@@ -33,7 +33,7 @@ Students will leave this course with experience in:
 
 Please consult the TA regarding issues related to course material, homework problems, setting up your computing enviroment, code design, implementation, and execution.
 
-TA: George Kissas,  Office Hours: TBA, Email: <gkissas@seas.upenn.edu>
+TA: George Kissas,  Office Hours: Tuesdays 5pm-6pm, Fridays 11am-12pm, Rm. 534, 3401 Walnut Street (5th-floor), Email: <gkissas@seas.upenn.edu>
 
 
 ### Note
