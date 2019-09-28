@@ -11,9 +11,9 @@ import numpy as np
 
 class BayesianLinearRegression:
   """
-    Linear regression model: y = (w.T)*x + \epsilon
-    w ~ N(0,beta^(-1)I)
-    P(y|x,w) ~ N(y|(w.T)*x,alpha^(-1)I)
+    Linear regression model: y = (w.T)*x + \\epsilon
+    w ~ N(0, beta^(-1)I)
+    P(y | x, w) ~ N(y | (w.T)*x, alpha^(-1)I)
   """
   def __init__(self, X, y, alpha = 1.0, beta = 1.0):
       
@@ -25,6 +25,7 @@ class BayesianLinearRegression:
       
       self.jitter = 1e-8
       
+  
 
   def fit_MLE(self): 
       xTx_inv = np.linalg.inv(np.matmul(self.X.T,self.X) + self.jitter)
