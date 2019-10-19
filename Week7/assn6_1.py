@@ -39,24 +39,28 @@ if __name__ == "__main__":
     func = torch.from_numpy(f(x[:, 0], x[:, 1])).type(torch.FloatTensor)
 
     # Generate Test Data
-    N_star = 1000
-    XY_star = lb + (ub-lb)*np.linspace(0, 1, N_star)[:, None]
+    N_star = 1000 * X_dim
+    XY_star = lb + (ub-lb)*np.linspace(0, 1, N_star).reshape(-1, X_dim)
+    XY_star = torch.from_numpy(XY_star).type(torch.FloatTensor)
 
     # Create model
     model = NeuralNetwork(XY, func, layers)
 
     # Training
-    model.train(nIter=10000, batch_size=N)
+    model.train(nIter=100, batch_size=N)
 
     # Prediction
     func_pred = model.predict(XY_star)
+    
+    print("shapes\nXY: {}, func: {}, XY_star: {}, func_pred: {}".format(
+            XY.shape, func.shape, XY_star.shape, func_pred.shape))
 
     # Plotting
-    # plt.figure(1)
-    # plt.plot(XY_star, func, 'b-', linewidth=2)
-    # plt.plot(XY_star, func_pred, 'r--', linewidth=2)
-    # plt.scatter(X, Y, alpha=0.8)
-    # plt.xlabel('$x$')
-    # plt.ylabel('$f(x)$')
-    # plt.legend(['$f(x)$', 'prediction',
-    #             '%d training data' % N], loc='lower left')
+    plt.figure(1)
+    plt.plot(XY_star, func, 'b-', linewidth=2)
+    plt.plot(XY_star, func_pred, 'r--', linewidth=2)
+    plt.scatter(XY[:, 0], XY[:, 1], alpha=0.8)
+    plt.xlabel('$x$')
+    plt.ylabel('$f(x)$')
+    plt.legend(['$f(x)$', 'prediction',
+                '%d training data' % N], loc='lower left')

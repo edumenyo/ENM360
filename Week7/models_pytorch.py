@@ -21,6 +21,8 @@ class NeuralNetwork:
         Ymean, Ystd = Y.mean(0), Y.std(0)
         X = (X - Xmean) / Xstd
         Y = (Y - Ymean) / Ystd
+        self.Xmean, self.Xstd = Xmean, Xstd
+        self.Ymean, self.Ystd = Ymean, Ystd
             
         self.X = X
         self.Y = Y
@@ -30,7 +32,7 @@ class NeuralNetwork:
         self.weights, self.biases = self.initialize_NN(self.layers)
         
         # All parameters
-        self.params = self.params.shape[0]
+        self.params = self.weights + self.biases
         
         # Define optimizer
         self.optimizer = torch.optim.Adam(self.params, lr = 1e-3)
@@ -41,12 +43,14 @@ class NeuralNetwork:
         weights, biases = [], []
         num_layers = len(Q)
         for layer in range(0, num_layers-1):
-            w = (-np.sqrt(6.0/(Q[layer]+Q[layer+1]))
+            w = torch.from_numpy(-np.sqrt(6.0/(Q[layer]+Q[layer+1]))
             + 2.0*np.sqrt(6.0/(Q[layer]+Q[layer+1]))
-            * np.random.rand(Q[layer], Q[layer+1]))
-            b = np.zeros((1, Q[layer+1]))
-            weights.append(torch.from_numpy(w, requires_grad=True))
-            biases.append(torch.from_numpy(b, requires_grad=True))
+            * np.random.rand(Q[layer], Q[layer+1])).type(torch.FloatTensor)
+            w.requires_grad=True
+            b = torch.from_numpy(np.zeros((1, Q[layer+1]))).type(torch.FloatTensor)
+            b.requires_grad=True
+            weights.append(w)
+            biases.append(b)
         return weights, biases
         
     
@@ -67,10 +71,8 @@ class NeuralNetwork:
     def loss(self, weights, biases):
         X = self.X_batch
         Y = self.Y_batch                     
-        mu = self.forward_pass(X, self.layers, weights, biases)                
-        return torch.mean((Y-mu)**2)
-    
-    # !!!
+        mu = self.forward_pass(X, self.layers, weights, biases)  
+        return torch.mean((Y.view(-1,1) - mu)**2)
     
     
     # Fetches a mini-batch of data
@@ -91,7 +93,8 @@ class NeuralNetwork:
         for it in range(nIter):
             # Fetch minibatch
             self.X_batch, self.Y_batch = self.fetch_minibatch(self.X, self.Y, batch_size)
-            
+            self.X_batch.requires_grad = False
+            self.Y_batch.requires_grad = False
             # Evaluate loss using current parameters
             loss = self.loss(self.weights, self.biases)
           
@@ -111,8 +114,10 @@ class NeuralNetwork:
     # Evaluates predictions at test points              
     def predict(self, X_star): 
         # Normalize inputs
+        print("size of X mean: {}".format(self.Xmean))
         X_star = (X_star - self.Xmean) / self.Xstd            
-        y_star = self.forward_pass(X_star, self.layers, self.params)
+        y_star = self.forward_pass(X_star, self.layers, 
+                                   self.weights, self.biases)
         # De-normalize outputs
         y_star = y_star*self.Ystd + self.Ymean            
         return y_star
