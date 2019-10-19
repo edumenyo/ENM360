@@ -7,8 +7,7 @@ Created on Thu Jan 25 13:32:19 2018
 """
 
 import autograd.numpy as np
-from autograd import grad
-from optimizers import Adam
+import torch
 import timeit
 
 class NeuralNetwork:
@@ -18,80 +17,70 @@ class NeuralNetwork:
     def __init__(self, X, Y, layers):
         
         # Normalize data
-        self.Xmean, self.Xstd = X.mean(0), X.std(0)
-        self.Ymean, self.Ystd = Y.mean(0), Y.std(0)
-        X = (X - self.Xmean) / self.Xstd
-        Y = (Y - self.Ymean) / self.Ystd
+        Xmean, Xstd = X.mean(0), X.std(0)
+        Ymean, Ystd = Y.mean(0), Y.std(0)
+        X = (X - Xmean) / Xstd
+        Y = (Y - Ymean) / Ystd
             
         self.X = X
         self.Y = Y
         self.layers = layers
         
         # Define and initialize neural network
-        self.params = self.initialize_NN(self.layers)
+        self.weights, self.biases = self.initialize_NN(self.layers)
         
-        # Total number of parameters
-        self.num_params = self.params.shape[0]
+        # All parameters
+        self.params = self.params.shape[0]
         
         # Define optimizer
-        self.optimizer = Adam(self.num_params, lr = 1e-3)
-        
-        # Define gradient function using autograd 
-        self.grad_loss = grad(self.loss)
+        self.optimizer = torch.optim.Adam(self.params, lr = 1e-3)
         
         
     # Initializes the network weights and biases using Xavier initialization
     def initialize_NN(self, Q):
-        params = np.array([])
+        weights, biases = [], []
         num_layers = len(Q)
         for layer in range(0, num_layers-1):
-            weights = (-np.sqrt(6.0/(Q[layer]+Q[layer+1]))
+            w = (-np.sqrt(6.0/(Q[layer]+Q[layer+1]))
             + 2.0*np.sqrt(6.0/(Q[layer]+Q[layer+1]))
             * np.random.rand(Q[layer], Q[layer+1]))
-            biases = np.zeros((1, Q[layer+1]))
-            params = np.concatenate([params, weights.ravel(), biases.ravel()])      
-        return params
+            b = np.zeros((1, Q[layer+1]))
+            weights.append(torch.from_numpy(w, requires_grad=True))
+            biases.append(torch.from_numpy(b, requires_grad=True))
+        return weights, biases
         
     
     # Evaluates the forward pass
-    def forward_pass(self, X, Q, params):
+    def forward_pass(self, X, Q, weights, biases):
         H = X
-        idx_3 = 0
         num_layers = len(self.layers)
         # All layers up to last
         for layer in range(0, num_layers-2):
-            idx_1 = idx_3
-            idx_2 = idx_1 + Q[layer]*Q[layer+1]
-            idx_3 = idx_2 + Q[layer+1]
-            weights = np.reshape(params[idx_1:idx_2], (Q[layer], Q[layer+1]))
-            biases = np.reshape(params[idx_2:idx_3], (1,Q[layer+1]))
-            H = np.tanh(np.matmul(H, weights) + biases)
+            H = torch.tanh(torch.mm(H, weights[layer]) + biases[layer])
             
-        # Last linear layer
-        idx_1 = idx_3
-        idx_2 = idx_1 + Q[-2]*Q[-1]
-        idx_3 = idx_2 + Q[-1]
-        weights = np.reshape(params[idx_1:idx_2], (Q[-2], Q[-1]))
-        biases = np.reshape(params[idx_2:idx_3], (1, Q[-1]))
-        mu = np.matmul(H, weights) + biases
-                
+        # last layer
+        mu = torch.mm(H, weights[-1]) + biases[-1]                
         return mu
     
     
     # Evaluates the mean square error loss
-    def loss(self, params):
+    def loss(self, weights, biases):
         X = self.X_batch
         Y = self.Y_batch                     
-        mu = self.forward_pass(X, self.layers, params)                
-        return np.mean((Y-mu)**2)
+        mu = self.forward_pass(X, self.layers, weights, biases)                
+        return torch.mean((Y-mu)**2)
+    
+    # !!!
     
     
     # Fetches a mini-batch of data
     def fetch_minibatch(self,X, Y, N_batch):
-        N = X.shape[0]
-        idx = np.random.choice(N, N_batch, replace=False)
+        N = len(X)
+#        idx = np.random.choice(N, N_batch, replace=False)
+        perm = torch.randperm(N)
+        idx = perm[:N]
         X_batch = X[idx,:]
-        Y_batch = Y[idx,:]        
+        Y_batch = Y[idx]        
         return X_batch, Y_batch
     
     
@@ -104,12 +93,12 @@ class NeuralNetwork:
             self.X_batch, self.Y_batch = self.fetch_minibatch(self.X, self.Y, batch_size)
             
             # Evaluate loss using current parameters
-            params = self.params
-            loss = self.loss(params)
+            loss = self.loss(self.weights, self.biases)
           
             # Update parameters
-            grad_params = self.grad_loss(params)
-            self.params = self.optimizer.step(params, grad_params)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
             
             # Print
             if it % 10 == 0:
